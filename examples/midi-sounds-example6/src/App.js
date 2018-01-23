@@ -19,46 +19,58 @@ class App extends Component {
 			]
 		};
 		this.state.data=[]
-		
+		this.beats=[];
 	}
 	componentDidMount() {
 		this.setState({ initialized: true });
 	}
 	onSelectDrumSnare(e){
 		var list=e.target;
-		let n = list.options[list.selectedIndex].getAttribute("value");
-		this.setState({
-			drumSnare: n
-		});
+		var n = list.options[list.selectedIndex].getAttribute("value");		
 		this.midiSounds.cacheDrum(n);
-		this.midiSounds.stopPlayLoop();
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumSnare: n
+			});
+			me.fillBeat();
+			});
 	}
 	onSelectDrumBass(e){
 		var list=e.target;
-		let n = list.options[list.selectedIndex].getAttribute("value");
-		this.setState({
-			drumBass: n
-		});
+		var n = list.options[list.selectedIndex].getAttribute("value");		
 		this.midiSounds.cacheDrum(n);
-		this.midiSounds.stopPlayLoop();
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumBass: n
+			});
+			me.fillBeat();
+			});
 	}
 	onSelectDrumHiHat(e){
 		var list=e.target;
-		let n = list.options[list.selectedIndex].getAttribute("value");
-		this.setState({
-			drumHiHat: n
-		});
+		var n = list.options[list.selectedIndex].getAttribute("value");		
 		this.midiSounds.cacheDrum(n);
-		this.midiSounds.stopPlayLoop();
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumHiHat: n
+			});
+			me.fillBeat();
+			});
 	}
 	onSelectDrumClap(e){
 		var list=e.target;
-		let n = list.options[list.selectedIndex].getAttribute("value");
-		this.setState({
-			drumClap: n
-		});
+		var n = list.options[list.selectedIndex].getAttribute("value");		
 		this.midiSounds.cacheDrum(n);
-		this.midiSounds.stopPlayLoop();
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumClap: n
+			});
+			me.fillBeat();
+			});
 	}
 	createSelectItems() {
 		if (this.midiSounds) {
@@ -71,9 +83,7 @@ class App extends Component {
 			return this.items;
 		}
 	}
-
-	playLoop(){
-		var data=[];
+	fillBeat(){
 		for(var i=0;i<16;i++){
 			var drums=[];
 			if(this.state.tracks[0][i]){drums.push(this.state.drumBass);}
@@ -81,18 +91,21 @@ class App extends Component {
 			if(this.state.tracks[2][i]){drums.push(this.state.drumClap);}
 			if(this.state.tracks[3][i]){drums.push(this.state.drumHiHat);}
 			var beat=[drums,[]];
-			data.push(beat);
+			this.beats[i]=beat;
 		}
-		this.midiSounds.startPlayLoop(data, 120, 1/16);
+	}
+	playLoop(){
+		this.fillBeat();
+		this.midiSounds.startPlayLoop(this.beats, 120, 1/16);
 	}
 	stopLoop(){
 		this.midiSounds.stopPlayLoop();
 	}
 	toggleDrum(track,step){
-		this.midiSounds.stopPlayLoop();
 		var a=this.state.tracks;
 		a[track][step]=!a[track][step];
 		this.setState({tracks:a});
+		this.fillBeat();
 	}
   render() {
     return (

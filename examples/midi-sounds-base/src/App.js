@@ -3,264 +3,210 @@ import logo from './logo.svg';
 import './App.css';
 import MIDISounds from 'midi-sounds-react';
 
-const O = 12;
-
-const C = 0;
-const c = 1;
-const D = 2;
-const d = 3;
-const E = 4
-const F = 5;
-const f = 6;
-const G = 7;
-const g = 8;
-const A = 9;
-const a = 10;
-const B = 11;
-
-const S1 = 5 * O + E;
-const S2 = 4 * O + B;
-const S3 = 4 * O + G;
-const S4 = 4 * O + D;
-const S5 = 3 * O + A;
-const S6 = 3 * O + E;
-
-const X3 = 3 * O + G;
-const X4 = 3 * O + D;
-const X5 = 2 * O + A;
-const X6 = 2 * O + E;
-
-const _Em = [
-	S6 + 0
-	, S5 + 2
-	, S4 + 2
-	, S3 + 0
-	, S2 + 0
-	, S1 + 0
-];
-
-const hihat=56;
-const drum=2;
-const snare=17;
-const pedal=35;
-const bass=437;
-const hit=609;
-const synth=521;
-
 class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			volDrum:0.7
-			,volSnare:0.7
-			,volHat:0.3
-			,volPedal:0.8
-			,volBass:1
-			,volHit:0.5
-			,volSynth:0.5
+			drumSnare:15
+			,drumBass:5
+			,drumHiHat:35
+			,drumClap:24
+			,tracks:[
+				[true,false,false,false,false,false,false,true,true,false,true,false,false,false,true,false]
+				,[false,false,false,false,true,false,false,false,false,false,false,false,true,false,false,false]
+				,[false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false]
+				,[true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false]
+			]
 		};
+		this.state.data=[]
+		this.beats=[];
 	}
 	componentDidMount() {
-		this.sendVolumes();
 		this.setState({ initialized: true });
 	}
-	onChangeTrackDrum(e){
-		this.setState({volDrum: e.target.value});
-		this.sendVolumes();
+	onSelectDrumSnare(e){
+		var list=e.target;
+		var n = list.options[list.selectedIndex].getAttribute("value");		
+		this.midiSounds.cacheDrum(n);
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumSnare: n
+			});
+			me.fillBeat();
+			});
 	}
-	onChangeTrackSnare(e){
-		this.setState({volSnare: e.target.value});
-		this.sendVolumes();
+	onSelectDrumBass(e){
+		var list=e.target;
+		var n = list.options[list.selectedIndex].getAttribute("value");		
+		this.midiSounds.cacheDrum(n);
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumBass: n
+			});
+			me.fillBeat();
+			});
 	}
-	onChangeTrackPedal(e){
-		this.setState({volPedal: e.target.value});
-		this.sendVolumes();
+	onSelectDrumHiHat(e){
+		var list=e.target;
+		var n = list.options[list.selectedIndex].getAttribute("value");		
+		this.midiSounds.cacheDrum(n);
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumHiHat: n
+			});
+			me.fillBeat();
+			});
 	}
-	onChangeTrackHat(e){
-		this.setState({volHat: e.target.value});
-		this.sendVolumes();
+	onSelectDrumClap(e){
+		var list=e.target;
+		var n = list.options[list.selectedIndex].getAttribute("value");		
+		this.midiSounds.cacheDrum(n);
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function(){
+			me.setState({
+				drumClap: n
+			});
+			me.fillBeat();
+			});
 	}
-	onChangeTrackBass(e){
-		this.setState({volBass: e.target.value});
-		this.sendVolumes();
+	createSelectItems() {
+		if (this.midiSounds) {
+			if (!(this.items)) {
+				this.items = [];
+				for (let i = 0; i < this.midiSounds.player.loader.drumKeys().length; i++) {
+					this.items.push(<option key={i} value={i}>{'' + (i + 0) + '. ' + this.midiSounds.player.loader.drumInfo(i).title}</option>);
+				}
+			}
+			return this.items;
+		}
 	}
-	onChangeTrackHit(e){
-		this.setState({volHit: e.target.value});
-		this.sendVolumes();
+	fillBeat(){
+		for(var i=0;i<16;i++){
+			var drums=[];
+			if(this.state.tracks[0][i]){drums.push(this.state.drumBass);}
+			if(this.state.tracks[1][i]){drums.push(this.state.drumSnare);}
+			if(this.state.tracks[2][i]){drums.push(this.state.drumClap);}
+			if(this.state.tracks[3][i]){drums.push(this.state.drumHiHat);}
+			var beat=[drums,[]];
+			this.beats[i]=beat;
+		}
 	}
-	onChangeTrackSynth(e){
-		this.setState({volSynth: e.target.value});
-		this.sendVolumes();
+	playLoop(){
+		this.fillBeat();
+		this.midiSounds.startPlayLoop(this.beats, 120, 1/16);
 	}
-	sendVolumes(){
-		this.midiSounds.setInstrumentVolume(synth,this.state.volSynth);
-		this.midiSounds.setInstrumentVolume(hit,this.state.volHit);
-		this.midiSounds.setInstrumentVolume(bass,this.state.volBass);
-		this.midiSounds.setDrumVolume(hihat,this.state.volHat);
-		this.midiSounds.setDrumVolume(pedal,this.state.volPedal);
-		this.midiSounds.setDrumVolume(snare,this.state.volSnare);
-		this.midiSounds.setDrumVolume(drum,this.state.volDrum);
+	stopLoop(){
+		this.midiSounds.stopPlayLoop();
 	}
-	changeMasterQuiet() {
-		this.midiSounds.setMasterVolume(0.3);
-	}
-	changeMasterLoud() {
-		this.midiSounds.setMasterVolume(1);
-	}
-	changeMasterEchoStrong() {
-		this.midiSounds.setEchoLevel(1);
-	}
-	changeMasterEchoNone() {
-		this.midiSounds.setEchoLevel(0);
-	}
-	changeMasterPower() {
-		this.midiSounds.setBand32(2);
-		this.midiSounds.setBand64(4);
-		this.midiSounds.setBand128(3);
-		this.midiSounds.setBand256(-2);
-		this.midiSounds.setBand512(-3);
-		this.midiSounds.setBand1k(1);
-		this.midiSounds.setBand2k(2);
-		this.midiSounds.setBand4k(3);
-		this.midiSounds.setBand8k(-3);
-		this.midiSounds.setBand16k(1);
-	}
-	changeMasterDance() {
-		this.midiSounds.setBand32(2);
-		this.midiSounds.setBand64(2);
-		this.midiSounds.setBand128(1);
-		this.midiSounds.setBand256(-1);
-		this.midiSounds.setBand512(5);
-		this.midiSounds.setBand1k(4);
-		this.midiSounds.setBand2k(4);
-		this.midiSounds.setBand4k(2);
-		this.midiSounds.setBand8k(-2);
-		this.midiSounds.setBand16k(3);
-	}
-	changeMasterNone() {
-		this.midiSounds.setBand32(0);
-		this.midiSounds.setBand64(0);
-		this.midiSounds.setBand128(0);
-		this.midiSounds.setBand256(0);
-		this.midiSounds.setBand512(0);
-		this.midiSounds.setBand1k(0);
-		this.midiSounds.setBand2k(0);
-		this.midiSounds.setBand4k(0);
-		this.midiSounds.setBand8k(0);
-		this.midiSounds.setBand16k(0);
-	}
-	startPlay(){
-		var data=[
-			[[pedal,drum      ],[[bass,[O*3+C],1/16],[hit,[O*5+C],1/4],[synth,[O*3+C],1/1],[synth,[O*4+C],1/1],[synth,[O*3+G],1/1],[synth,[O*5+C],1/2],[synth,[O*5+d],3/8]]]//1/16
-		   ,[[pedal           ],[                                                                                                                                         ]]
-		   ,[[hihat           ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*3+C],1/16],                  [synth,[O*5+d],1/8]                                                                                ]]
-		   ,[[                ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*3+C],1/16],                  [synth,[O*5+C],1/8]                                                                                ]]//
-		   ,[[pedal           ],[[bass,[O*3+C],1/16],                  [synth,[O*3+C],1/1]                                                                                ]]
-		   ,[[hihat           ],[                                      [synth,[O*5+d],1/8]                                                                                ]]
-		   ,[[                ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*3+C],1/16],                  [synth,[O*5+d],1/8]                                                                                ]]
-		   ,[[pedal           ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*3+C],1/16],[hit,[O*4+G],1/8],[synth,[O*5+G],1/8]                                                                                ]]
-		   ,[[                ],[[bass,[O*3+C],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*2+G],1/16],[hit,[O*5+a],1/4],[synth,[O*3+G],1/1],[synth,[O*4+G],1/1],[synth,[O*5+d],3/1],[synth,[O*5+a],3/8]                    ]]//16/16
-		   ,[[pedal           ],[                                                                                                                                         ]]
-		   ,[[hihat           ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+G],1/16],                  [synth,[O*5+a],1/8]                                                                                ]]
-		   ,[[                ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*2+G],1/16],                  [synth,[O*5+G],1/8]                                                                                ]]
-		   ,[[pedal           ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+G],1/16],                  [synth,[O*5+a],1/8]                                                                                ]]
-		   ,[[                ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*2+G],1/16],                  [synth,[O*5+a],1/8]                                                                                ]]
-		   ,[[pedal           ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+G],1/16],[hit,[O*5+d],1/8],[synth,[O*6+D],1/8]                                                                                ]]
-		   ,[[                ],[[bass,[O*2+G],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*2+a],1/16],[hit,[O*5+F],1/1],[synth,[O*3+a],2/1],[synth,[O*4+a],2/1],[synth,[O*5+F],2/1],[synth,[O*6+F],2/1]                    ]]//32/16
-		   ,[[pedal           ],[                                                                                                                                         ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*2+a],1/16]                                                                                                                      ]]//48/16
-		   ,[[pedal           ],[                                                                                                                                         ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum      ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal,drum,snare],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[pedal           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[hihat           ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ,[[                ],[[bass,[O*2+a],1/16]                                                                                                                      ]]
-		   ];
-		this.midiSounds.startPlayLoop(data, 120, 1/16, this.midiSounds.beatIndex);
-	}
-	stopAll(){
-		this.midiSounds.stopPlayLoop();		
-		this.midiSounds.beatIndex=0;
+	toggleDrum(track,step){
+		var a=this.state.tracks;
+		a[track][step]=!a[track][step];
+		this.setState({tracks:a});
+		this.fillBeat();
 	}
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to midi-sounds-react example 9</h1>
+          <h1 className="App-title">Welcome to midi-sounds-react example 6</h1>
         </header>
-        <p className="App-intro">Change sound properties and press a Play.</p>	
-		<p>Master volume</p>
+		<p className="App-intro">Define beat and press Play.</p>		
+		<table align='center'>
+			<tbody>
+				<tr>
+					<td><select value={this.state.drumBass} onChange={this.onSelectDrumBass.bind(this)}>{this.createSelectItems()}</select></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][0]} onChange={(e)=>this.toggleDrum(0,0)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][1]} onChange={(e)=>this.toggleDrum(0,1)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][2]} onChange={(e)=>this.toggleDrum(0,2)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][3]} onChange={(e)=>this.toggleDrum(0,3)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][4]} onChange={(e)=>this.toggleDrum(0,4)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][5]} onChange={(e)=>this.toggleDrum(0,5)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][6]} onChange={(e)=>this.toggleDrum(0,6)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][7]} onChange={(e)=>this.toggleDrum(0,7)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][8]} onChange={(e)=>this.toggleDrum(0,8)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][9]} onChange={(e)=>this.toggleDrum(0,9)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][10]} onChange={(e)=>this.toggleDrum(0,10)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][11]} onChange={(e)=>this.toggleDrum(0,11)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][12]} onChange={(e)=>this.toggleDrum(0,12)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][13]} onChange={(e)=>this.toggleDrum(0,13)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][14]} onChange={(e)=>this.toggleDrum(0,14)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[0][15]} onChange={(e)=>this.toggleDrum(0,15)} /></td>					
+				</tr>
+				<tr>
+					<td><select value={this.state.drumSnare} onChange={this.onSelectDrumSnare.bind(this)}>{this.createSelectItems()}</select></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][0]} onChange={(e)=>this.toggleDrum(1,0)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][1]} onChange={(e)=>this.toggleDrum(1,1)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][2]} onChange={(e)=>this.toggleDrum(1,2)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][3]} onChange={(e)=>this.toggleDrum(1,3)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][4]} onChange={(e)=>this.toggleDrum(1,4)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][5]} onChange={(e)=>this.toggleDrum(1,5)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][6]} onChange={(e)=>this.toggleDrum(1,6)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][7]} onChange={(e)=>this.toggleDrum(1,7)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][8]} onChange={(e)=>this.toggleDrum(1,8)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][9]} onChange={(e)=>this.toggleDrum(1,9)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][10]} onChange={(e)=>this.toggleDrum(1,10)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][11]} onChange={(e)=>this.toggleDrum(1,11)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][12]} onChange={(e)=>this.toggleDrum(1,12)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][13]} onChange={(e)=>this.toggleDrum(1,13)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][14]} onChange={(e)=>this.toggleDrum(1,14)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[1][15]} onChange={(e)=>this.toggleDrum(1,15)} /></td>					
+				</tr>
+				<tr>
+					<td><select value={this.state.drumClap} onChange={this.onSelectDrumClap.bind(this)}>{this.createSelectItems()}</select></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][0]} onChange={(e)=>this.toggleDrum(2,0)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][1]} onChange={(e)=>this.toggleDrum(2,1)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][2]} onChange={(e)=>this.toggleDrum(2,2)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][3]} onChange={(e)=>this.toggleDrum(2,3)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][4]} onChange={(e)=>this.toggleDrum(2,4)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][5]} onChange={(e)=>this.toggleDrum(2,5)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][6]} onChange={(e)=>this.toggleDrum(2,6)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][7]} onChange={(e)=>this.toggleDrum(2,7)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][8]} onChange={(e)=>this.toggleDrum(2,8)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][9]} onChange={(e)=>this.toggleDrum(2,9)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][10]} onChange={(e)=>this.toggleDrum(2,10)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][11]} onChange={(e)=>this.toggleDrum(2,11)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][12]} onChange={(e)=>this.toggleDrum(2,12)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][13]} onChange={(e)=>this.toggleDrum(2,13)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][14]} onChange={(e)=>this.toggleDrum(2,14)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[2][15]} onChange={(e)=>this.toggleDrum(2,15)} /></td>					
+				</tr>
+				<tr>
+					<td><select value={this.state.drumHiHat} onChange={this.onSelectDrumHiHat.bind(this)}>{this.createSelectItems()}</select></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][0]} onChange={(e)=>this.toggleDrum(3,0)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][1]} onChange={(e)=>this.toggleDrum(3,1)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][2]} onChange={(e)=>this.toggleDrum(3,2)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][3]} onChange={(e)=>this.toggleDrum(3,3)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][4]} onChange={(e)=>this.toggleDrum(3,4)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][5]} onChange={(e)=>this.toggleDrum(3,5)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][6]} onChange={(e)=>this.toggleDrum(3,6)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][7]} onChange={(e)=>this.toggleDrum(3,7)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][8]} onChange={(e)=>this.toggleDrum(3,8)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][9]} onChange={(e)=>this.toggleDrum(3,9)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][10]} onChange={(e)=>this.toggleDrum(3,10)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][11]} onChange={(e)=>this.toggleDrum(3,11)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][12]} onChange={(e)=>this.toggleDrum(3,12)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][13]} onChange={(e)=>this.toggleDrum(3,13)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][14]} onChange={(e)=>this.toggleDrum(3,14)} /></td>
+					<td><input type="checkbox" defaultChecked={this.state.tracks[3][15]} onChange={(e)=>this.toggleDrum(3,15)} /></td>					
+				</tr>
+			</tbody>
+		</table>
 		<p>
-			<button type='button' onClick={this.changeMasterQuiet.bind(this)} >Quiet</button>
-			<button type='button' onClick={this.changeMasterLoud.bind(this)} >Loud</button>
-		</p>
-		<p>Echo level</p>
-		<p>
-			<button type='button' onClick={this.changeMasterEchoNone.bind(this)} >Off</button>
-			<button type='button' onClick={this.changeMasterEchoStrong.bind(this)} >On</button>
-		</p>
-		<p>Equalizer preset</p>
-		<p>
-			<button type='button' onClick={this.changeMasterNone.bind(this)} >None</button>
-			<button type='button' onClick={this.changeMasterPower.bind(this)} >Power</button>
-			<button type='button' onClick={this.changeMasterDance.bind(this)} >Dance</button>
-		</p>
-		<p>
-			Drum <input type='range' value={this.state.volDrum} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackDrum.bind(this)} />
-			<br />Snare <input type='range' value={this.state.volSnare} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackSnare.bind(this)} />
-			<br />Pedal <input type='range' value={this.state.volPedal} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackPedal.bind(this)} />
-			<br />HiHat <input type='range' value={this.state.volHat} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackHat.bind(this)} />
-			<br />Bass guitar <input type='range' value={this.state.volBass} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackBass.bind(this)} />
-			<br />Orchestra Hit <input type='range' value={this.state.volHit} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackHit.bind(this)} />
-			<br />Synth strings <input type='range' value={this.state.volSynth} min={0.0} max={1.0} step={0.1} onChange={this.onChangeTrackSynth.bind(this)} />
-		</p>		
-		<p>
-			<button type="button" onClick={this.startPlay.bind(this)} >Play</button>
-			<button type="button" onClick={this.stopAll.bind(this)} >Stop</button>
+			<button onClick={this.playLoop.bind(this)}>Play loop</button>
+			<button onClick={this.stopLoop.bind(this)}>Stop loop</button>
 		</p>
 		<p>Component</p>
-		<MIDISounds ref={(ref) => (this.midiSounds = ref)} appElementName="root" instruments={[bass,hit,synth]} drums={[hihat,drum,snare,pedal]} />	
+		<MIDISounds ref={(ref) => (this.midiSounds = ref)} appElementName="root" 
+			drums={[this.state.drumSnare
+					,this.state.drumBass
+					,this.state.drumHiHat
+					,this.state.drumClap
+				]} 
+			/>	
 		<hr/>
 		<p>Sources: <a href={'https://www.npmjs.com/package/midi-sounds-react'}>https://www.npmjs.com/package/midi-sounds-react</a></p>
       </div>
