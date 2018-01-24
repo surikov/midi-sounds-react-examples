@@ -8,19 +8,28 @@ class App extends Component {
 		super(props);
 		this.state = {
 			selectedInstrument: 4
+			,cached:true
 		};
 	}
 	componentDidMount() {
 		console.log('componentDidMount App');
-		this.setState({ initialized: true });
+		this.setState(this.state);
 	}
 	onSelectInstrument(e){
 		var list=e.target;
 		let n = list.options[list.selectedIndex].getAttribute("value");
 		this.setState({
 			selectedInstrument: n
+			,cached:false
 		});
 		this.midiSounds.cacheInstrument(n);
+		var me=this;
+		this.midiSounds.player.loader.waitLoad(function () {
+			me.setState({
+				selectedInstrument: n
+				,cached:true
+			});
+		});
 	}
 	createSelectItems() {
 		if (this.midiSounds) {
@@ -45,7 +54,7 @@ class App extends Component {
         </header>
         <p className="App-intro">Select instrument and press Play.</p>		
 		<p><select value={this.state.selectedInstrument} onChange={this.onSelectInstrument.bind(this)}>{this.createSelectItems()}</select></p>
-		<p><button onClick={this.playTestInstrument.bind(this)}>Play</button></p>
+		<p><button onClick={this.playTestInstrument.bind(this)} disabled={!this.state.cached}>Play</button></p>
 		<p>Component</p>
 		<MIDISounds ref={(ref) => (this.midiSounds = ref)} appElementName="root" instruments={[4]} />	
 		<hr/>

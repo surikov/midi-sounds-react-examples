@@ -57,7 +57,7 @@ class App extends Component {
 		var when=this.midiSounds.contextTime();
 		var b=0.1;
 		this.midiSounds.playChordAt(when+b*0,594,[60],b*1);
-		this.midiSounds.playChordAt(when+b*3,594,[56],b*3);
+		this.midiSounds.playChordAt(when+b*3,594,[56],b*4);
 	}
   render() {
     return (
