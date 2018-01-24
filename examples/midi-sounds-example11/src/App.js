@@ -3,10 +3,10 @@ import logo from './logo.svg';
 import './App.css';
 import MIDISounds from 'midi-sounds-react';
 
-const bassDrum=2;//bassDrum
-const snare=17;//snare
-const hiHat=56;//hiHat
-const cymbal=70;//cymbal
+const bassDrum=2;
+const snare=17;
+const hiHat=56;
+const cymbal=70;
 
 const palmMute=304;//palmMute
 const bassGuitar=384;//bassGuitar
@@ -40,6 +40,10 @@ class App extends Component {
 	stopAll(){
 		this.midiSoundsDrums.stopPlayLoop();		
 		this.midiSoundsDrums.beatIndex=0;
+		this.midiSoundsBass.stopPlayLoop();		
+		this.midiSoundsBass.beatIndex=0;
+		this.midiSoundsOverdrive.stopPlayLoop();		
+		this.midiSoundsOverdrive.beatIndex=0;
 	}
   render() {
     return (

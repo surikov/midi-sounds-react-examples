@@ -53,6 +53,12 @@ class App extends Component {
 		this.midiSounds.playDrumsAt(when+b*1,[this.state.drumSnare,this.state.drumHighTom]);
 		this.midiSounds.playDrumsAt(when+b*3,[this.state.drumSnare,this.state.drumBass,this.state.drumCrash]);
 	}
+	uhoh(){
+		var when=this.midiSounds.contextTime();
+		var b=0.1;
+		this.midiSounds.playChordAt(when+b*0,594,[60],b*1);
+		this.midiSounds.playChordAt(when+b*3,594,[56],b*3);
+	}
   render() {
     return (
       <div className="App">
@@ -61,12 +67,12 @@ class App extends Component {
           <h1 className="App-title">Welcome to midi-sounds-react example 5</h1>
         </header>
 		<p className="App-intro">Play short fragment.</p>
-		<p><button onClick={this.badumtss.bind(this)}>Ba Dum Tss</button></p>
+		<p><button onClick={this.badumtss.bind(this)}>Ba Dum Tss</button><button onClick={this.uhoh.bind(this)}>Uh-Oh</button></p>
         <p className="App-intro">Select drum and press Play.</p>		
 		<p><select value={this.state.selectedDrum} onChange={this.onSelectDrum.bind(this)}>{this.createSelectItems()}</select></p>
 		<p><button onClick={this.playTestDrum.bind(this)}>Play sequence</button></p>
 		<p>Component</p>
-		<MIDISounds ref={(ref) => (this.midiSounds = ref)} appElementName="root" drums={[this.state.selectedDrum,this.state.drumLowTom,this.state.drumHighTom,this.state.drumSnare,this.state.drumBass,this.state.drumCrash]} />	
+			<MIDISounds ref={(ref) => (this.midiSounds = ref)} appElementName="root" instruments={[594]} drums={[this.state.selectedDrum,this.state.drumLowTom,this.state.drumHighTom,this.state.drumSnare,this.state.drumBass,this.state.drumCrash]} />	
 		<hr/>
 		<p>Sources: <a href={'https://www.npmjs.com/package/midi-sounds-react'}>https://www.npmjs.com/package/midi-sounds-react</a></p>
       </div>

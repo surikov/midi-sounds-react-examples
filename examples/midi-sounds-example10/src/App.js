@@ -9,8 +9,18 @@ const STYLE = {
 		,width:'0.5cm'
 		,height:'0.75cm'
 		}
+	,keyWhitePress :{
+		backgroundColor: '#ffaaaa'
+		,width:'0.5cm'
+		,height:'0.75cm'
+		}
 	,keyBlack :{
 		backgroundColor: '#333333'
+		,width:'0.5cm'
+		,height:'0.5cm'
+		}
+	,keyBlackPress :{
+		backgroundColor: '#990000'
 		,width:'0.5cm'
 		,height:'0.5cm'
 		}
@@ -54,18 +64,30 @@ class App extends Component {
 			return this.items;
 		}
 	}
-	onMouseDown(n){
-		this.onMouseUp(n);
-		this.envelopes[n]=this.midiSounds.player.queueWaveTable(this.midiSounds.audioContext, this.midiSounds.equalizer.input
-			, window[this.midiSounds.player.loader.instrumentInfo(this.state.selectedInstrument).variable], 0, n+12+12, 9999,true);
+	keyDown(n){
+		this.keyUp(n);
+		this.envelopes[n]=this.midiSounds.player.queueWaveTable(this.midiSounds.audioContext
+			, this.midiSounds.equalizer.input
+			, window[this.midiSounds.player.loader.instrumentInfo(this.state.selectedInstrument).variable]
+			, 0, n, 9999,true);
+		this.setState(this.state);
 	}
-	onMouseUp(n){
+	keyUp(n){
 		if(this.envelopes){
 			if(this.envelopes[n]){
 				this.envelopes[n].cancel();
 				this.envelopes[n]=null;
+				this.setState(this.state);
 			}
 		}
+	}
+	pressed(n){
+		if(this.envelopes){
+			if(this.envelopes[n]){
+				return true;
+			}
+		}
+		return false;
 	}
   render() {
     return (
@@ -79,60 +101,78 @@ class App extends Component {
 		<table align="center">
 				<tbody>
 					<tr>
+						
 						<td style={STYLE.keyMargin}></td>
 						
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(1)} onMouseUp={(e)=>this.onMouseUp(1)} onMouseOut={(e)=>this.onMouseUp(1)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(3)} onMouseUp={(e)=>this.onMouseUp(3)} onMouseOut={(e)=>this.onMouseUp(3)}></td>
+						<td style={(this.pressed(1+12*2))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(1+12*2)} onMouseUp={(e)=>this.keyUp(1+12*2)} onMouseOut={(e)=>this.keyUp(1+12*2)}></td>
+						<td style={(this.pressed(3+12*2))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(3+12*2)} onMouseUp={(e)=>this.keyUp(3+12*2)} onMouseOut={(e)=>this.keyUp(3+12*2)}></td>
 						<td style={STYLE.keyNo}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(6)} onMouseUp={(e)=>this.onMouseUp(6)} onMouseOut={(e)=>this.onMouseUp(6)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(8)} onMouseUp={(e)=>this.onMouseUp(8)} onMouseOut={(e)=>this.onMouseUp(8)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(10)} onMouseUp={(e)=>this.onMouseUp(10)} onMouseOut={(e)=>this.onMouseUp(10)}></td>
-						<td style={STYLE.keyNo}></td>
-						
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(1+12)} onMouseUp={(e)=>this.onMouseUp(1+12)} onMouseOut={(e)=>this.onMouseUp(1+12)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(3+12)} onMouseUp={(e)=>this.onMouseUp(3+12)} onMouseOut={(e)=>this.onMouseUp(3+12)}></td>
-						<td style={STYLE.keyNo}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(6+12)} onMouseUp={(e)=>this.onMouseUp(6+12)} onMouseOut={(e)=>this.onMouseUp(6+12)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(8+12)} onMouseUp={(e)=>this.onMouseUp(8+12)} onMouseOut={(e)=>this.onMouseUp(8+12)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(10+12)} onMouseUp={(e)=>this.onMouseUp(10+12)} onMouseOut={(e)=>this.onMouseUp(10+12)}></td>
+						<td style={(this.pressed(6+12*2))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(6+12*2)} onMouseUp={(e)=>this.keyUp(6+12*2)} onMouseOut={(e)=>this.keyUp(6+12*2)}></td>
+						<td style={(this.pressed(8+12*2))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(8+12*2)} onMouseUp={(e)=>this.keyUp(8+12*2)} onMouseOut={(e)=>this.keyUp(8+12*2)}></td>
+						<td style={(this.pressed(10+12*2))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(10+12*2)} onMouseUp={(e)=>this.keyUp(10+12*2)} onMouseOut={(e)=>this.keyUp(10+12*2)}></td>
 						<td style={STYLE.keyNo}></td>
 						
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(1+12+12)} onMouseUp={(e)=>this.onMouseUp(1+12+12)} onMouseOut={(e)=>this.onMouseUp(1+12+12)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(3+12+12)} onMouseUp={(e)=>this.onMouseUp(3+12+12)} onMouseOut={(e)=>this.onMouseUp(3+12+12)}></td>
+						<td style={(this.pressed(1+12*3))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(1+12*3)} onMouseUp={(e)=>this.keyUp(1+12*3)} onMouseOut={(e)=>this.keyUp(1+12*3)}></td>
+						<td style={(this.pressed(3+12*3))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(3+12*3)} onMouseUp={(e)=>this.keyUp(3+12*3)} onMouseOut={(e)=>this.keyUp(3+12*3)}></td>
 						<td style={STYLE.keyNo}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(6+12+12)} onMouseUp={(e)=>this.onMouseUp(6+12+12)} onMouseOut={(e)=>this.onMouseUp(6+12+12)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(8+12+12)} onMouseUp={(e)=>this.onMouseUp(8+12+12)} onMouseOut={(e)=>this.onMouseUp(8+12+12)}></td>
-						<td style={STYLE.keyBlack} onMouseDown={(e)=>this.onMouseDown(10+12+12)} onMouseUp={(e)=>this.onMouseUp(10+12+12)} onMouseOut={(e)=>this.onMouseUp(10+12+12)}></td>
-						<td style={STYLE.keyNo}></td>						
+						<td style={(this.pressed(6+12*3))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(6+12*3)} onMouseUp={(e)=>this.keyUp(6+12*3)} onMouseOut={(e)=>this.keyUp(6+12*3)}></td>
+						<td style={(this.pressed(8+12*3))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(8+12*3)} onMouseUp={(e)=>this.keyUp(8+12*3)} onMouseOut={(e)=>this.keyUp(8+12*3)}></td>
+						<td style={(this.pressed(10+12*3))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(10+12*3)} onMouseUp={(e)=>this.keyUp(10+12*3)} onMouseOut={(e)=>this.keyUp(10+12*3)}></td>
+						<td style={STYLE.keyNo}></td>
+						
+						<td style={(this.pressed(1+12*4))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(1+12*4)} onMouseUp={(e)=>this.keyUp(1+12*4)} onMouseOut={(e)=>this.keyUp(1+12*4)}></td>
+						<td style={(this.pressed(3+12*4))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(3+12*4)} onMouseUp={(e)=>this.keyUp(3+12*4)} onMouseOut={(e)=>this.keyUp(3+12*4)}></td>
+						<td style={STYLE.keyNo}></td>
+						<td style={(this.pressed(6+12*4))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(6+12*4)} onMouseUp={(e)=>this.keyUp(6+12*4)} onMouseOut={(e)=>this.keyUp(6+12*4)}></td>
+						<td style={(this.pressed(8+12*4))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(8+12*4)} onMouseUp={(e)=>this.keyUp(8+12*4)} onMouseOut={(e)=>this.keyUp(8+12*4)}></td>
+						<td style={(this.pressed(10+12*4))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(10+12*4)} onMouseUp={(e)=>this.keyUp(10+12*4)} onMouseOut={(e)=>this.keyUp(10+12*4)}></td>
+						<td style={STYLE.keyNo}></td>
+						
+						<td style={(this.pressed(1+12*5))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(1+12*5)} onMouseUp={(e)=>this.keyUp(1+12*5)} onMouseOut={(e)=>this.keyUp(1+12*5)}></td>
+						<td style={(this.pressed(3+12*5))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(3+12*5)} onMouseUp={(e)=>this.keyUp(3+12*5)} onMouseOut={(e)=>this.keyUp(3+12*5)}></td>
+						<td style={STYLE.keyNo}></td>
+						<td style={(this.pressed(6+12*5))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(6+12*5)} onMouseUp={(e)=>this.keyUp(6+12*5)} onMouseOut={(e)=>this.keyUp(6+12*5)}></td>
+						<td style={(this.pressed(8+12*5))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(8+12*5)} onMouseUp={(e)=>this.keyUp(8+12*5)} onMouseOut={(e)=>this.keyUp(8+12*5)}></td>
+						<td style={(this.pressed(10+12*5))?STYLE.keyBlackPress:STYLE.keyBlack} onMouseDown={(e)=>this.keyDown(10+12*5)} onMouseUp={(e)=>this.keyUp(10+12*5)} onMouseOut={(e)=>this.keyUp(10+12*5)}></td>
+						<td style={STYLE.keyNo}></td>
+										
 					</tr>
 				</tbody>
 			</table>
 		<table align="center">
 				<tbody>
 					<tr>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(0)} onMouseUp={(e)=>this.onMouseUp(0)} onMouseOut={(e)=>this.onMouseUp(0)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(2)} onMouseUp={(e)=>this.onMouseUp(2)} onMouseOut={(e)=>this.onMouseUp(2)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(4)} onMouseUp={(e)=>this.onMouseUp(4)} onMouseOut={(e)=>this.onMouseUp(4)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(5)} onMouseUp={(e)=>this.onMouseUp(5)} onMouseOut={(e)=>this.onMouseUp(5)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(7)} onMouseUp={(e)=>this.onMouseUp(7)} onMouseOut={(e)=>this.onMouseUp(7)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(9)} onMouseUp={(e)=>this.onMouseUp(9)} onMouseOut={(e)=>this.onMouseUp(9)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(11)} onMouseUp={(e)=>this.onMouseUp(11)} onMouseOut={(e)=>this.onMouseUp(11)}></td>
+						<td style={(this.pressed(0+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(0+12*2)} onMouseUp={(e)=>this.keyUp(0+12*2)} onMouseOut={(e)=>this.keyUp(0+12*2)}></td>
+						<td style={(this.pressed(2+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(2+12*2)} onMouseUp={(e)=>this.keyUp(2+12*2)} onMouseOut={(e)=>this.keyUp(2+12*2)}></td>
+						<td style={(this.pressed(4+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(4+12*2)} onMouseUp={(e)=>this.keyUp(4+12*2)} onMouseOut={(e)=>this.keyUp(4+12*2)}></td>
+						<td style={(this.pressed(5+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(5+12*2)} onMouseUp={(e)=>this.keyUp(5+12*2)} onMouseOut={(e)=>this.keyUp(5+12*2)}></td>
+						<td style={(this.pressed(7+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(7+12*2)} onMouseUp={(e)=>this.keyUp(7+12*2)} onMouseOut={(e)=>this.keyUp(7+12*2)}></td>
+						<td style={(this.pressed(9+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(9+12*2)} onMouseUp={(e)=>this.keyUp(9+12*2)} onMouseOut={(e)=>this.keyUp(9+12*2)}></td>
+						<td style={(this.pressed(11+12*2))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(11+12*2)} onMouseUp={(e)=>this.keyUp(11+12*2)} onMouseOut={(e)=>this.keyUp(11+12*2)}></td>
 						
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(0+12)} onMouseUp={(e)=>this.onMouseUp(0+12)} onMouseOut={(e)=>this.onMouseUp(0+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(2+12)} onMouseUp={(e)=>this.onMouseUp(2+12)} onMouseOut={(e)=>this.onMouseUp(2+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(4+12)} onMouseUp={(e)=>this.onMouseUp(4+12)} onMouseOut={(e)=>this.onMouseUp(4+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(5+12)} onMouseUp={(e)=>this.onMouseUp(5+12)} onMouseOut={(e)=>this.onMouseUp(5+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(7+12)} onMouseUp={(e)=>this.onMouseUp(7+12)} onMouseOut={(e)=>this.onMouseUp(7+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(9+12)} onMouseUp={(e)=>this.onMouseUp(9+12)} onMouseOut={(e)=>this.onMouseUp(9+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(11+12)} onMouseUp={(e)=>this.onMouseUp(11+12)} onMouseOut={(e)=>this.onMouseUp(11+12)}></td>
+						<td style={(this.pressed(0+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(0+12*3)} onMouseUp={(e)=>this.keyUp(0+12*3)} onMouseOut={(e)=>this.keyUp(0+12*3)}></td>
+						<td style={(this.pressed(2+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(2+12*3)} onMouseUp={(e)=>this.keyUp(2+12*3)} onMouseOut={(e)=>this.keyUp(2+12*3)}></td>
+						<td style={(this.pressed(4+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(4+12*3)} onMouseUp={(e)=>this.keyUp(4+12*3)} onMouseOut={(e)=>this.keyUp(4+12*3)}></td>
+						<td style={(this.pressed(5+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(5+12*3)} onMouseUp={(e)=>this.keyUp(5+12*3)} onMouseOut={(e)=>this.keyUp(5+12*3)}></td>
+						<td style={(this.pressed(7+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(7+12*3)} onMouseUp={(e)=>this.keyUp(7+12*3)} onMouseOut={(e)=>this.keyUp(7+12*3)}></td>
+						<td style={(this.pressed(9+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(9+12*3)} onMouseUp={(e)=>this.keyUp(9+12*3)} onMouseOut={(e)=>this.keyUp(9+12*3)}></td>
+						<td style={(this.pressed(11+12*3))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(11+12*3)} onMouseUp={(e)=>this.keyUp(11+12*3)} onMouseOut={(e)=>this.keyUp(11+12*3)}></td>
 						
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(0+12+12)} onMouseUp={(e)=>this.onMouseUp(0+12+12)} onMouseOut={(e)=>this.onMouseUp(0+12+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(2+12+12)} onMouseUp={(e)=>this.onMouseUp(2+12+12)} onMouseOut={(e)=>this.onMouseUp(2+12+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(4+12+12)} onMouseUp={(e)=>this.onMouseUp(4+12+12)} onMouseOut={(e)=>this.onMouseUp(4+12+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(5+12+12)} onMouseUp={(e)=>this.onMouseUp(5+12+12)} onMouseOut={(e)=>this.onMouseUp(5+12+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(7+12+12)} onMouseUp={(e)=>this.onMouseUp(7+12+12)} onMouseOut={(e)=>this.onMouseUp(7+12+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(9+12+12)} onMouseUp={(e)=>this.onMouseUp(9+12+12)} onMouseOut={(e)=>this.onMouseUp(9+12+12)}></td>
-						<td style={STYLE.keyWhite} onMouseDown={(e)=>this.onMouseDown(11+12+12)} onMouseUp={(e)=>this.onMouseUp(11+12+12)} onMouseOut={(e)=>this.onMouseUp(11+12+12)}></td>
+						<td style={(this.pressed(0+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(0+12*4)} onMouseUp={(e)=>this.keyUp(0+12*4)} onMouseOut={(e)=>this.keyUp(0+12*4)}></td>
+						<td style={(this.pressed(2+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(2+12*4)} onMouseUp={(e)=>this.keyUp(2+12*4)} onMouseOut={(e)=>this.keyUp(2+12*4)}></td>
+						<td style={(this.pressed(4+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(4+12*4)} onMouseUp={(e)=>this.keyUp(4+12*4)} onMouseOut={(e)=>this.keyUp(4+12*4)}></td>
+						<td style={(this.pressed(5+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(5+12*4)} onMouseUp={(e)=>this.keyUp(5+12*4)} onMouseOut={(e)=>this.keyUp(5+12*4)}></td>
+						<td style={(this.pressed(7+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(7+12*4)} onMouseUp={(e)=>this.keyUp(7+12*4)} onMouseOut={(e)=>this.keyUp(7+12*4)}></td>
+						<td style={(this.pressed(9+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(9+12*4)} onMouseUp={(e)=>this.keyUp(9+12*4)} onMouseOut={(e)=>this.keyUp(9+12*4)}></td>
+						<td style={(this.pressed(11+12*4))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(11+12*4)} onMouseUp={(e)=>this.keyUp(11+12*4)} onMouseOut={(e)=>this.keyUp(11+12*4)}></td>
+						
+						<td style={(this.pressed(0+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(0+12*5)} onMouseUp={(e)=>this.keyUp(0+12*5)} onMouseOut={(e)=>this.keyUp(0+12*5)}></td>
+						<td style={(this.pressed(2+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(2+12*5)} onMouseUp={(e)=>this.keyUp(2+12*5)} onMouseOut={(e)=>this.keyUp(2+12*5)}></td>
+						<td style={(this.pressed(4+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(4+12*5)} onMouseUp={(e)=>this.keyUp(4+12*5)} onMouseOut={(e)=>this.keyUp(4+12*5)}></td>
+						<td style={(this.pressed(5+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(5+12*5)} onMouseUp={(e)=>this.keyUp(5+12*5)} onMouseOut={(e)=>this.keyUp(5+12*5)}></td>
+						<td style={(this.pressed(7+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(7+12*5)} onMouseUp={(e)=>this.keyUp(7+12*5)} onMouseOut={(e)=>this.keyUp(7+12*5)}></td>
+						<td style={(this.pressed(9+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(9+12*5)} onMouseUp={(e)=>this.keyUp(9+12*5)} onMouseOut={(e)=>this.keyUp(9+12*5)}></td>
+						<td style={(this.pressed(11+12*5))?STYLE.keyWhitePress:STYLE.keyWhite} onMouseDown={(e)=>this.keyDown(11+12*5)} onMouseUp={(e)=>this.keyUp(11+12*5)} onMouseOut={(e)=>this.keyUp(11+12*5)}></td>
 						
 						<td style={STYLE.keyMargin}></td>
 						
@@ -140,7 +180,11 @@ class App extends Component {
 				</tbody>
 			</table>
 		<p>Component</p>
-		<MIDISounds ref={(ref) => (this.midiSounds = ref)} appElementName="root" instruments={[this.state.selectedInstrument]} />	
+		<MIDISounds 
+			ref={(ref) => (this.midiSounds = ref)} 
+			appElementName="root" 
+			instruments={[this.state.selectedInstrument]} 
+			/>	
 		<hr/>
 		<p>Sources: <a href={'https://www.npmjs.com/package/midi-sounds-react'}>https://www.npmjs.com/package/midi-sounds-react</a></p>
       </div>
