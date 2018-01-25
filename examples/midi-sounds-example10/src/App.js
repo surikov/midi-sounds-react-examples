@@ -37,13 +37,15 @@ const STYLE = {
 class App extends Component {
 	constructor(props) {
 		super(props);
+		this.midiNotes=[];
 		this.state = {
 			selectedInstrument: 192
+			,status:'?'
 		};
 	}
 	componentDidMount() {
-		this.envelopes=[];
-		this.setState({ initialized: true });
+		this.envelopes=[];				
+		this.startListening();
 	}
 	onSelectInstrument(e){
 		var list=e.target;
@@ -64,12 +66,16 @@ class App extends Component {
 			return this.items;
 		}
 	}
-	keyDown(n){
+	keyDown(n,v){
 		this.keyUp(n);
+		var volume=1;
+		if(v){
+			volume=v;
+		}
 		this.envelopes[n]=this.midiSounds.player.queueWaveTable(this.midiSounds.audioContext
 			, this.midiSounds.equalizer.input
 			, window[this.midiSounds.player.loader.instrumentInfo(this.state.selectedInstrument).variable]
-			, 0, n, 9999,true);
+			, 0, n, 9999,volume);
 		this.setState(this.state);
 	}
 	keyUp(n){
@@ -89,6 +95,45 @@ class App extends Component {
 		}
 		return false;
 	}
+	midiOnMIDImessage(event){
+		var data = event.data;
+		var cmd = data[0] >> 4;
+		var channel = data[0] & 0xf;
+		var type = data[0] & 0xf0;
+		var pitch = data[1];
+		var velocity = data[2];
+		switch (type) {
+		case 144:
+			this.keyDown(pitch, velocity/127);
+			break;
+		case 128:
+			this.keyUp(pitch);
+			break;
+		}
+	}
+	onMIDIOnStateChange(event) {
+		this.setState({status:event.port.manufacturer + ' ' + event.port.name + ' ' + event.port.state});
+	}
+	requestMIDIAccessSuccess(midi){
+		console.log(midi);
+		var inputs = midi.inputs.values();
+		for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
+			input.value.onmidimessage = this.midiOnMIDImessage.bind(this);
+		}
+		midi.onstatechange = this.onMIDIOnStateChange.bind(this);
+	}
+	requestMIDIAccessFailure(e){
+		console.log('requestMIDIAccessFailure', e);
+		this.setState({status:'MIDI Access Failure'});
+	}
+	startListening(){
+		this.setState({status:'waiting'});
+		if (navigator.requestMIDIAccess) {
+			navigator.requestMIDIAccess().then(this.requestMIDIAccessSuccess.bind(this), this.requestMIDIAccessFailure.bind(this));
+		} else {
+			this.setState({status:'navigator.requestMIDIAccess undefined'});
+		}
+	}
   render() {
     return (
       <div className="App">
@@ -98,6 +143,7 @@ class App extends Component {
         </header>
 		<p className="App-intro">Press keys or use MIDI keyboard.</p>		
 		<p><select value={this.state.selectedInstrument} onChange={this.onSelectInstrument.bind(this)}>{this.createSelectItems()}</select></p>
+		<p>Status: {this.state.status}</p>
 		<table align="center">
 				<tbody>
 					<tr>
